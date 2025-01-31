@@ -1,42 +1,25 @@
 import esphome.codegen as cg
 import esphome.config_validation as cv
-from esphome.components import sensor, uart
+from esphome.components import uart, sensor
 from esphome.const import (
     CONF_ID,
     CONF_VOLTAGE,
-    STATE_CLASS_MEASUREMENT,
-    UNIT_VOLT,
-    ICON_FLASH,
 )
 
 DEPENDENCIES = ['uart']
-AUTO_LOAD = ['sensor']
+MULTI_CONF = True
+
+CONF_PHASE_A = "phase_a"
 
 bl6552_ns = cg.esphome_ns.namespace('bl6552')
 BL6552 = bl6552_ns.class_('BL6552', cg.Component, uart.UARTDevice)
 
-# Configuration keys
-CONF_PHASE_A = "phase_a"
-CONF_PHASE_B = "phase_b"
-CONF_PHASE_C = "phase_c"
-
-# Basic configuration schema for voltage sensors
-CONFIG_SCHEMA = (
-    cv.Schema({
-        cv.GenerateID(): cv.declare_id(BL6552),
-        cv.Optional(CONF_PHASE_A): cv.Schema({
-            cv.Optional(CONF_VOLTAGE): sensor.sensor_schema(
-                unit_of_measurement=UNIT_VOLT,
-                icon=ICON_FLASH,
-                accuracy_decimals=1,
-                state_class=STATE_CLASS_MEASUREMENT,
-            ),
-        }),
-        # We'll add Phase B and C later after confirming Phase A works
-    })
-    .extend(cv.COMPONENT_SCHEMA)
-    .extend(uart.UART_DEVICE_SCHEMA)
-)
+CONFIG_SCHEMA = cv.Schema({
+    cv.GenerateID(): cv.declare_id(BL6552),
+    cv.Optional(CONF_PHASE_A): cv.Schema({
+        cv.Optional(CONF_VOLTAGE): sensor.sensor_schema(),
+    }),
+})
 
 async def to_code(config):
     var = cg.new_Pvariable(config[CONF_ID])
